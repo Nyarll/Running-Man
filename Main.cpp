@@ -12,8 +12,8 @@ typedef short BOOL;
 
 typedef struct Player_t
 {
-	float x, y;
-	int vy;
+	int x, y;
+	int vx, vy;
 }Player;
 
 typedef struct Table_t
@@ -22,8 +22,11 @@ typedef struct Table_t
 }Table;
 
 int map[SCREEN_H][SCREEN_W];
-Player player = { 110,24,0 };
+Player player = { 110,24,0,0 };
 Table table = { player.x,26 };
+
+int now_score = 0;
+int high_score;
 
 void Render(void);
 
@@ -31,12 +34,21 @@ int main(void)
 {
 	int code = 0;
 	int cnt = 0;
+	BOOL temp = 10;
 	BOOL jump_flag = FALSE;
 	BOOL end_flag = FALSE;
+
+	FILE *fp;
+
+	fopen_s(&fp, "HighScore.txt", "r");
+	fscanf_s(fp, "%d", &high_score);
+	fclose(fp);
 
 	Render();
 
 	SetCursorVisibility(CURSOR_INVISIBLE);
+
+	player.vx = 1;
 
 	while (1)
 	{
@@ -50,19 +62,19 @@ int main(void)
 
 		switch (code)
 		{
-		/*case KEY_RIGHT:
-			player.x -= 1;
-			break;*/
+			/*case KEY_RIGHT:
+				player.x -= 1;
+				break;*/
 
-		/*case KEY_LEFT:
-			player.x += 1;
-			break;*/
+				/*case KEY_LEFT:
+					player.x += 1;
+					break;*/
 
 		case KEY_SPACE:
 			if ((!jump_flag) && (player.y == 24))
 			{
 				jump_flag = TRUE;
-				player.vy = -1.0f;
+				player.vy = -1;
 			}
 			break;
 
@@ -71,9 +83,9 @@ int main(void)
 			break;
 		}
 
-		
 
-		if (cnt % 10 == 0)
+
+		if (cnt % temp == 0)
 		{
 			if ((jump_flag) && (player.y > 20))
 			{
@@ -85,11 +97,12 @@ int main(void)
 				jump_flag = FALSE;
 			}
 
-			player.x -= 1.0f;	// ハードルが常に動く　　　　　
+			player.x -= player.vx;	// ハードルが常に動く　　　　　
 		}
 		if (player.x < 0)
 		{
 			player.x = 119;
+			now_score += 1;
 		}
 		if (player.x > 119)
 		{
@@ -99,6 +112,25 @@ int main(void)
 		{
 			player.y = 24;
 			player.vy = 0;
+		}
+
+		switch (now_score)
+		{
+		case 2:
+			temp = 8;
+			break;
+		case 4:
+			temp = 6;
+			break;
+		case 6:
+			temp = 4;
+			break;
+		case 8:
+			temp = 2;
+			break;
+		case 10:
+			temp = 1;
+			break;
 		}
 
 		if (((int)player.x == SCREEN_W / 2) && (((int)player.y + 2) == 26))
@@ -116,8 +148,23 @@ int main(void)
 	}
 
 	SetCursorPosition(SCREEN_W / 2, SCREEN_H / 2);
-	printf("GameOver");
+	if (now_score < 10)
+	{
+		printf("GameOver");
+	}
+	else
+	{
+		printf("Good Play !");
+	}
+
+	if (now_score >= high_score)
+	{
+		high_score = now_score;
+	}
 	code = WaitKey();
+	fopen_s(&fp, "HighScore.txt", "w");
+	fprintf(fp, "%d", high_score);
+	fclose(fp);
 
 	return 0;
 }
@@ -165,7 +212,11 @@ void Render(void)
 		printf("■");
 	}
 	SetCursorPosition(1, 0);
-	printf("Move(right : →, left : ←, jump : SPACE)");
+	printf("Move(jump : SPACE) GameEnd : ESC");
 	SetCursorPosition(1, 1);
 	printf("Jumping Hurdle(!) !");
+	SetCursorPosition(1, 2);
+	printf(" Now Score : %3d", now_score);
+	SetCursorPosition(1, 3);
+	printf("High Score : %3d", high_score);
 }
