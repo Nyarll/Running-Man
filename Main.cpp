@@ -171,6 +171,7 @@ int main(void)
 
 void Render(void)
 {
+	static BOOL init_flag = FALSE;
 	if (player.x != table.x)
 	{
 		SetCursorPosition(table.x, 26);
@@ -196,25 +197,31 @@ void Render(void)
 	SetCursorPosition(player.x, 26);
 	printf("!");
 
-	SetCursorPosition(0, 27);
-	for (int i = 0; i < SCREEN_W / 2; i++)
+	//if (!init_flag)
 	{
-		printf("¡");
+		SetCursorPosition(0, 27);
+		for (int i = 0; i < SCREEN_W / 2; i++)
+		{
+			printf("¡");
+		}
+		SetCursorPosition(0, 28);
+		for (int i = 0; i < SCREEN_W / 2; i++)
+		{
+			printf("¡");
+		}
+		SetCursorPosition(0, 29);
+		for (int i = 0; i < SCREEN_W / 2; i++)
+		{
+			printf("¡");
+		}
+		SetCursorPosition(1, 0);
+		printf("Move(jump : SPACE) GameEnd : ESC");
+		SetCursorPosition(1, 1);
+		printf("Jumping Hurdle(!) !");
+
+		init_flag = TRUE;
 	}
-	SetCursorPosition(0, 28);
-	for (int i = 0; i < SCREEN_W / 2; i++)
-	{
-		printf("¡");
-	}
-	SetCursorPosition(0, 29);
-	for (int i = 0; i < SCREEN_W / 2; i++)
-	{
-		printf("¡");
-	}
-	SetCursorPosition(1, 0);
-	printf("Move(jump : SPACE) GameEnd : ESC");
-	SetCursorPosition(1, 1);
-	printf("Jumping Hurdle(!) !");
+
 	SetCursorPosition(1, 2);
 	printf(" Now Score : %3d", now_score);
 	SetCursorPosition(1, 3);
